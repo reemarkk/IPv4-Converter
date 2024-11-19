@@ -9,7 +9,7 @@ typedef unsigned char UINT8;
 
 UINT32 ConvertIP(const char* pIP, UINT32* pdwAddr)
 {
-    if (!pIP || *pIP=='\0') return 1;
+    if (!pIP || *pIP=='\0') return INADDR_NONE;
     printf("ConvertIP(pIP: %s, pdwAddr: 0x%p)\n", pIP, pdwAddr);
     
     UINT32 dwAddr = 0;
@@ -45,52 +45,71 @@ UINT32 ConvertIP(const char* pIP, UINT32* pdwAddr)
     else
         return INADDR_NONE;
 }
-int runTest(const char* ipAddress, UINT32 expectedResult) {
-    
-    UINT32 dwAddr = 0;
-       UINT32 status = ConvertIP(ipAddress, &dwAddr);
 
-       if (status == 0) {
-           if (dwAddr == expectedResult) {
-               printf("Test Passed: %s -> 0x%08X\n", ipAddress, dwAddr);
-               return 1;
-           }
-           else {
-               printf("Test Failed: %s -> 0x%08X (Expected: 0x%08X)\n", ipAddress, dwAddr, expectedResult);
-               return 0;
-           }
-       }
-       else if (status == INADDR_NONE) {
-           printf("Test Failed: Invalid IP format -> %s\n", ipAddress);
-           return 0;
-       }
 
-       return 0;
-    
-}
 
 int main(void) {
-    int testResult = 1;
-    
-    // Valid test cases
-    testResult &= runTest("1.1.1.1", 0x01010101);
-    testResult &= runTest("192.168.1.1", 0xC0A80101);
-    testResult &= runTest("255.255.255.255", 0xFFFFFFFF);
-    testResult &= runTest("0.0.0.0", 0x00000000);
-    
-    // Invalid test cases
-    testResult &= runTest("256.256.256.256", 0);
-    testResult &= runTest("1.1.1", 0);
-    testResult &= runTest("1.1.1.1.1", 0);
-    testResult &= runTest("abc.def.ghi.jkl", 0);
-    testResult &= runTest("1.1.1.300", 0);
-    testResult &= runTest("", 0);
-    testResult &= runTest(NULL, 0);
-    
-    if (testResult) {
-        printf("\nAll tests passed!\n");
+    UINT32 dwAddr = 0;
+    UINT32 result;
+
+    // Test 1
+    result = ConvertIP("1.1.1.1", &dwAddr);
+    if (result != 0) {
+        printf("Test Failed: 1.1.1.1 (Expected: 0x01010101, Got: 0x%08X)\n", dwAddr);
+    } else if (dwAddr != 0x01010101) {
+        printf("Test Failed: 1.1.1.1 (Expected: 0x01010101, Got: 0x%08X)\n", dwAddr);
     } else {
-        printf("\nSome tests failed.\n");
+        printf("Test Passed: 1.1.1.1 -> 0x%08X\n", dwAddr);
+    }
+
+    // Test 2
+    result = ConvertIP("192.168.1.1", &dwAddr);
+    if (result != 0) {
+        printf("Test Failed: 192.168.1.1 (Expected: 0xC0A80101, Got: 0x%08X)\n", dwAddr);
+    } else if (dwAddr != 0xC0A80101) {
+        printf("Test Failed: 192.168.1.1 (Expected: 0xC0A80101, Got: 0x%08X)\n", dwAddr);
+    } else {
+        printf("Test Passed: 192.168.1.1 -> 0x%08X\n", dwAddr);
+    }
+
+    // Test 3
+    result = ConvertIP("256.256.256.256", &dwAddr);
+    if (result == 0) {
+        printf("Test Failed: 256.256.256.256 (Expected: INADDR_NONE, Got: 0x%08X)\n", dwAddr);
+    } else {
+        printf("Test Passed: 256.256.256.256 is invalid as expected\n");
+    }
+
+    // Test 4
+    result = ConvertIP("1.1.1", &dwAddr);
+    if (result == 0) {
+        printf("Test Failed: 1.1.1 (Expected: INADDR_NONE, Got: 0x%08X)\n", dwAddr);
+    } else {
+        printf("Test Passed: 1.1.1 is invalid as expected\n");
+    }
+
+    // Test 5
+    result = ConvertIP("abc.def.ghi.jkl", &dwAddr);
+    if (result == 0) {
+        printf("Test Failed: abc.def.ghi.jkl (Expected: INADDR_NONE, Got: 0x%08X)\n", dwAddr);
+    } else {
+        printf("Test Passed: abc.def.ghi.jkl is invalid as expected\n");
+    }
+
+    // Test 6
+    result = ConvertIP("", &dwAddr);
+    if (result == 0) {
+        printf("Test Failed: Empty string (Expected: INADDR_NONE, Got: 0x%08X)\n", dwAddr);
+    } else {
+        printf("Test Passed: Empty string is invalid as expected\n");
+    }
+
+    // Test 7: NULL string
+    result = ConvertIP(NULL, &dwAddr);
+    if (result == 0) {
+        printf("Test Failed: NULL (Expected: INADDR_NONE, Got: 0x%08X)\n", dwAddr);
+    } else {
+        printf("Test Passed: NULL is invalid as expected\n");
     }
 
     return 0;
