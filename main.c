@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#define INADDR_NONE 0xffffffff
 
 typedef unsigned int UINT32;
 typedef unsigned char UINT8;
+
 
 UINT32 ConvertIP(const char* pIP, UINT32* pdwAddr)
 {
@@ -25,7 +27,7 @@ UINT32 ConvertIP(const char* pIP, UINT32* pdwAddr)
             }
         
         if(dwOctet > 255 || dwCompletedOctetCount >= 4){    //invalid cases
-            return 1;
+            return INADDR_NONE;
             }
         
         dwAddr = (dwAddr<<8)| dwOctet;
@@ -41,27 +43,30 @@ UINT32 ConvertIP(const char* pIP, UINT32* pdwAddr)
     }
     
     else
-        return 1;
+        return INADDR_NONE;
 }
 int runTest(const char* ipAddress, UINT32 expectedResult) {
     
     UINT32 dwAddr = 0;
-    UINT32 status = ConvertIP(ipAddress, &dwAddr);
+       UINT32 status = ConvertIP(ipAddress, &dwAddr);
 
-    if (status == 0) {
-        if (dwAddr == expectedResult) {
-            printf("Test Passed: %s -> 0x%08X\n", ipAddress, dwAddr);
-            return 1;
-        }
-        else {
-            printf("Test Failed: %s -> 0x%08X (Expected: 0x%08X)\n", ipAddress, dwAddr, expectedResult);
-            return 0;
-        }
-    }
-    else {
-        printf("Test Failed: Invalid IP format -> %s\n", ipAddress);
-        return 0;
-    }
+       if (status == 0) {
+           if (dwAddr == expectedResult) {
+               printf("Test Passed: %s -> 0x%08X\n", ipAddress, dwAddr);
+               return 1;
+           }
+           else {
+               printf("Test Failed: %s -> 0x%08X (Expected: 0x%08X)\n", ipAddress, dwAddr, expectedResult);
+               return 0;
+           }
+       }
+       else if (status == INADDR_NONE) {
+           printf("Test Failed: Invalid IP format -> %s\n", ipAddress);
+           return 0;
+       }
+
+       return 0;
+    
 }
 
 int main(void) {
