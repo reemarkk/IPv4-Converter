@@ -47,8 +47,7 @@ UINT32 ConvertIP(const char* pIP, UINT32* pdwAddr)
 }
 
 
-
-int main(void) {
+int Tests(void) {
     UINT32 dwAddr = 0;
     UINT32 result;
 
@@ -113,4 +112,8 @@ int main(void) {
     }
 
     return 0;
+}
+
+int main(void){
+    Tests();
 }
